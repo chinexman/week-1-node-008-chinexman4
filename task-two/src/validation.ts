@@ -1,13 +1,3 @@
-// import
-// cons createCsvWriter = require('csv-writer').createObjectCsvWriter;
-// const csvWriter = createCsvWriter({
-//   path : 'sample-real.csv',
-//   header:[
-//     {id:"emails"}
-//   ]
-// })
-
-// const records =
 import fs from 'fs';
 
 const emailArr = '';
@@ -29,11 +19,12 @@ async function validateEmailAddresses(inputPath: string[], outputFile: string) {
   //   })
   // });
   //console.log(result);
-
   let data = ' ';
   const inputPaths1: string = inputPath.join('');
   try {
     const readerStream = fs.createReadStream(inputPaths1);
+    const writerStream = fs.createWriteStream(outputFile);
+
     readerStream.setEncoding('utf-8');
 
     readerStream.on('data', function (chunk: string) {
@@ -41,30 +32,18 @@ async function validateEmailAddresses(inputPath: string[], outputFile: string) {
     });
 
     readerStream.on('end', function () {
-      //result = data;
-      console.log('it got here');
-      console.log(data);
-      console.log('it is working');
-
       const emailArray: string[] = data.split('\n');
-
-      console.log(emailArray.length);
-      console.log('good');
       for (const elem of emailArray) {
-        //console.log(elem);
-        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const emailValidate = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-        if (re.test(String(elem).toLowerCase())) {
-          //emailArr = elem + " ";
+        if (emailValidate.test(String(elem).toLowerCase())) {
           finalEmails.push(elem);
         }
       }
-      console.log(finalEmails.length);
-      console.log(finalEmails);
-      console.log('it came here');
-      const csvEmail: string = finalEmails.join('');
 
-      fs.writeFileSync(outputFile, `${finalEmails}`);
+      console.log(finalEmails);
+      const csvEmail: string = finalEmails.join('');
+      writerStream.write(`${finalEmails}`);
     });
   } catch (err) {
     console.log(err);

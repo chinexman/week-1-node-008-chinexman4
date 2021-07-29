@@ -1,16 +1,8 @@
 import fs from 'fs';
-
-interface Domain {
-  'valid-domains': string[];
-  totalEmailsParsed: number;
-  totalValidEmails: number;
-  categories: {
-    [valid: string]: number;
-  };
-}
+//const fs = require('fs');
 
 const emails: string[] = [];
-const sampleJson: Domain = {};
+
 const validDomian: string[] = [];
 /**
  * First task - Read the csv files in the inputPath and analyse them
@@ -23,7 +15,9 @@ function analyseFiles(inputPaths: string[], outputPath: string) {
   let data = '';
   const inputPaths1: string = inputPaths.join('');
   try {
-    const readerStream = fs.createReadStream(inputPaths1);
+    const readerStream = fs.createReadStream(inputPaths[0]);
+    const writerStream = fs.createWriteStream(outputPath);
+
     readerStream.setEncoding('utf-8');
 
     readerStream.on('data', function (chunk: string) {
@@ -31,31 +25,22 @@ function analyseFiles(inputPaths: string[], outputPath: string) {
     });
 
     readerStream.on('end', function () {
-      //result = data;
-      console.log('it got here');
-      console.log(data);
-      console.log('it is working');
-
       const emailArray: string[] = [];
       const emailArray1: string[] = data.split('\n');
-      for (const elem = 0; elem < emailArray1.length; elem++) {
-        if (emailArray1[elem].includes('@')) {
-          emailArray.push(emailArray1[elem]);
+      for (let item = 0; item < emailArray1.length; item++) {
+        if (emailArray1[item].includes('@')) {
+          emailArray.push(emailArray1[item]);
         }
       }
 
       for (const elem of emailArray) {
-        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const emailValidate = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-        if (re.test(String(elem).toLowerCase())) {
-          //emailArr = elem + " ";
+        if (emailValidate.test(String(elem).toLowerCase())) {
           emails.push(elem);
         }
       }
-      //   type User = {
 
-      //     [key: string]: string;
-      // }
       const obj: { [property: string]: number } = {};
 
       for (let elem = 0; elem < emails.length; elem++) {
@@ -67,14 +52,26 @@ function analyseFiles(inputPaths: string[], outputPath: string) {
         }
       }
 
-      sampleJson['valid-domains'] = validDomian;
-      sampleJson['totalEmailsParsed'] = emailArray.length;
-      sampleJson['totalValidEmails'] = emails.length;
-      sampleJson['categories'] = obj;
+      interface Domain {
+        'valid-domains': string[];
+        totalEmailsParsed: number;
+        totalValidEmails: number;
+        categories: {
+          [valid: string]: number;
+        };
+      }
 
+      const sampleJson: Domain = {
+        'valid-domains': validDomian,
+        totalEmailsParsed: emailArray.length,
+        totalValidEmails: emails.length,
+        categories: obj,
+      };
       console.log(sampleJson);
 
-      fs.writeFileSync(outputPath, JSON.stringify(sampleJson, null, ' '));
+      //    console.log(sampleJson);
+
+      writerStream.write(`${sampleJson}`);
     });
   } catch (err) {
     console.log(err);
