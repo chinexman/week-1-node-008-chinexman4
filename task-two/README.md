@@ -33,6 +33,8 @@ The script takes two arguments, `input` and `output`
 
 ```bash
 email-analysis fixtures/inputs/small-sample.csv report-analysis.json
+
+email-analysis fixtures/inputs/medium-sample.csv report-analysis.json
 ```
 
 ```bash
@@ -43,6 +45,10 @@ email-analysis 'fixtures/inputs/*.csv' report-analysis.json
 
 ```bash
 email-analysis validate fixtures/inputs/small-sample.csv report-validation.csv
+
+email-analysis validate fixtures/inputs/medium-sample.csv report-validation.csv
+
+email-analysis validate fixtures/inputs/medium-sample.csv report-validation.csv
 ```
 
 ```bash

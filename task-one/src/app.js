@@ -2,16 +2,16 @@ import FileTree from './fileTree';
 
 export function createFileTree(input) {
 
-  let localcopy = input.slice();
-  //sort localcopy using the last digit of the nodeID
+  let localFileCopy = input.slice();
+  //sort localFileCopy using the last digit of the nodeID
   
-  localcopy.sort((a,b)=>{
+  localFileCopy.sort((a,b)=>{
     return +a.id.toString().slice(-1) - +b.id.toString().slice(-1)
   }  )
-  console.log(localcopy);
+  console.log(localFileCopy);
   const fileTree = new FileTree();
 
-  for (const inputNode of localcopy) {
+  for (const inputNode of localFileCopy) {
     const parentNode = inputNode.parentId
       ? fileTree.findNodeById(inputNode.parentId)
       : null;

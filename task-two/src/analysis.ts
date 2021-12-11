@@ -1,7 +1,7 @@
 import fs from 'fs';
 //const fs = require('fs');
 
-const emails: string[] = [];
+const validEmails: string[] = [];
 
 const validDomian: string[] = [];
 /**
@@ -13,10 +13,9 @@ const validDomian: string[] = [];
 
 function analyseFiles(inputPaths: string[], outputPath: string) {
   let data = '';
-  const inputPaths1: string = inputPaths.join('');
+  //const inputPaths1: string = inputPaths.join('');
   try {
     const readerStream = fs.createReadStream(inputPaths[0]);
-    const writerStream = fs.createWriteStream(outputPath);
 
     readerStream.setEncoding('utf-8');
 
@@ -25,6 +24,8 @@ function analyseFiles(inputPaths: string[], outputPath: string) {
     });
 
     readerStream.on('end', function () {
+      const writerStream = fs.createWriteStream(outputPath);
+
       const emailArray: string[] = [];
       const emailArray1: string[] = data.split('\n');
       for (let item = 0; item < emailArray1.length; item++) {
@@ -37,18 +38,18 @@ function analyseFiles(inputPaths: string[], outputPath: string) {
         const emailValidate = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
         if (emailValidate.test(String(elem).toLowerCase())) {
-          emails.push(elem);
+          validEmails.push(elem);
         }
       }
 
       const obj: { [property: string]: number } = {};
 
-      for (let elem = 0; elem < emails.length; elem++) {
-        if (obj.prototype.hasOwnProperty.call(emails[elem].split('@')[1])) {
-          obj[emails[elem].split('@')[1]]++;
+      for (let elem = 0; elem < validEmails.length; elem++) {
+        if (obj.hasOwnProperty(validEmails[elem].split('@')[1])) {
+          obj[validEmails[elem].split('@')[1]]++;
         } else {
-          validDomian.push(emails[elem].split('@')[1]);
-          obj[emails[elem].split('@')[1]] = 1;
+          validDomian.push(validEmails[elem].split('@')[1]);
+          obj[validEmails[elem].split('@')[1]] = 1;
         }
       }
 
@@ -64,14 +65,19 @@ function analyseFiles(inputPaths: string[], outputPath: string) {
       const sampleJson: Domain = {
         'valid-domains': validDomian,
         totalEmailsParsed: emailArray.length,
-        totalValidEmails: emails.length,
+        totalValidEmails: validEmails.length,
         categories: obj,
       };
-      console.log(sampleJson);
+      //console.log(sampleJson);
+
+      const stringJson = JSON.stringify(sampleJson, null, 2);
 
       //    console.log(sampleJson);
 
-      writerStream.write(`${sampleJson}`);
+      //writerStream.write(`${validDomian}`);
+      writerStream.write(stringJson);
+
+      //fs.writeFileSync(outputPath, JSON.stringify(sampleJson, null, ' '));
     });
   } catch (err) {
     console.log(err);

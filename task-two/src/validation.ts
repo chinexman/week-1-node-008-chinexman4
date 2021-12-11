@@ -1,6 +1,6 @@
 import fs from 'fs';
+import dns from 'dns';
 
-const emailArr = '';
 const finalEmails: string[] = [];
 /**
  * Stretch goal - Validate all the emails in this files and output the report
@@ -31,19 +31,42 @@ async function validateEmailAddresses(inputPath: string[], outputFile: string) {
       data += chunk;
     });
 
-    readerStream.on('end', function () {
+    readerStream.on('end', async function () {
       const emailArray: string[] = data.split('\n');
-      for (const elem of emailArray) {
-        const emailValidate = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-        if (emailValidate.test(String(elem).toLowerCase())) {
-          finalEmails.push(elem);
-        }
+      for(let elem = 0; elem < emailArray.length; elem++){
+        // const domain = emailArray[elem].split('@')[1];  
+        let result1:any = await new Promise((resolve,reject)=>{
+         dns.resolve(emailArray[elem].split('@')[1], 'MX', function(err, addresses) {    
+             if (err) {
+                 reject(err)   
+             } else if (addresses && addresses.length > 0) {      
+               resolve(emailArray[elem]);
+             }
+           } );//end of dns
+        }).catch(err => false); // end of promise
+      if( result1 !== false){
+        finalEmails.push(result1);
+
       }
+     }
 
-      console.log(finalEmails);
-      const csvEmail: string = finalEmails.join('');
-      writerStream.write(`${finalEmails}`);
+      // for (const elem of emailArray) {
+      //   const emailValidate = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+      //   if (emailValidate.test(String(elem).toLowerCase())) {
+      //     finalEmails.push(elem);
+      //   }
+      // }
+
+
+      //console.log(finalEmails.unshift("Emails"));
+       finalEmails.unshift('Email');
+      const csvEmail: string = finalEmails.join('\n');
+    //  const stringJson = JSON.stringify(finalEmails, null, 2);
+      writerStream.write(csvEmail);
+     
+      //writerStream.write(`${finalEmails}`);
     });
   } catch (err) {
     console.log(err);
